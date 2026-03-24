@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('pickup_address');
             $table->string('delivery_address');
             $table->string('status')->index();
-            $table->foreignId('assign_deliver_id')
+            $table->foreignId('assigned_driver_id')
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete()

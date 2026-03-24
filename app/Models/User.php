@@ -31,4 +31,6 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected $guard_name  = 'api';
 }
