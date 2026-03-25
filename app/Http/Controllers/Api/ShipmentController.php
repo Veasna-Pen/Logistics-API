@@ -34,6 +34,17 @@ class ShipmentController extends Controller
         return response()->json($shipment, 201);
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string'
+        ]);
+
+        $shipment = $this->shipmentService->updateStatus($id, $request->status, auth()->id());
+
+        return response()->json($shipment);
+    }
+    
     public function index()
     {
         return response()->json(

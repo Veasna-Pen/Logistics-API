@@ -19,5 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ShipmentController::class, 'store']);
         Route::get('/', [ShipmentController::class, 'index']);
         Route::get('/{id}', [ShipmentController::class, 'show']);
+
+        Route::post('/{id}/status', [ShipmentController::class, 'updateStatus']);
     });
 });
