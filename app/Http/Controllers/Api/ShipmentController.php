@@ -45,7 +45,7 @@ class ShipmentController extends Controller
 
         return response()->json($shipment);
     }
-    
+
     public function index()
     {
         return response()->json(
@@ -58,5 +58,17 @@ class ShipmentController extends Controller
         return response()->json(
             $this->shipmentService->find($id)
         );;
+    }
+
+
+    public function assignDriver(Request $request, $id)
+    {
+        $request->validate([
+            'driver_id' => 'required|exists:users,id'
+        ]);
+
+        $shipment = $this->shipmentService->assignDriver($id, $request->driver_id, auth()->user());
+
+        return response()->json($shipment);
     }
 }

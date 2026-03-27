@@ -21,5 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [ShipmentController::class, 'show']);
 
         Route::post('/{id}/status', [ShipmentController::class, 'updateStatus']);
+
+        Route::post('/{id}/assign-driver', [ShipmentController::class, 'assignDriver']);
     });
 });

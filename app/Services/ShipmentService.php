@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ShipmentStatus;
 use App\Models\Shipment;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -63,6 +64,34 @@ class ShipmentService
             ]);
 
             return $shipment;
+        });
+    }
+
+    public function assignDriver(int $shipmentId, int $driverId, $user)
+    {
+        return DB::transaction(function () use ($shipmentId, $driverId, $user) {
+            $shipment = Shipment::findOrFail($shipmentId);
+
+            if ($shipment->status !== ShipmentStatus::PENDING) {
+                abort(422, "Only pending shipments can be assigned");
+            }
+
+            $driver = User::findOrFail($driverId);
+            if (!$driver->hasRole('driver')) {
+                abort(422, "Selected user is not a driver");
+            }
+
+            $shipment->update([
+                'assigned_driver_id' => $driverId,
+                'status' => ShipmentStatus::ASSIGNED
+            ]);
+
+            $shipment->logs()->create([
+                'status' => ShipmentStatus::ASSIGNED,
+                'updated_by' => $user->id
+            ]);
+
+            return $shipment->load(['driver']);
         });
     }
 }
