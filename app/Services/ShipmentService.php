@@ -45,8 +45,12 @@ class ShipmentService
 
             $currentStatus = $shipment->status;
 
+            if ($currentStatus === $newStatus) {
+                abort(422, "Shipment already in status: $currentStatus");
+            }
+
             if (!ShipmentStatus::conTransition($currentStatus, $newStatus)) {
-                throw new \Exception("Invalid status transition: $currentStatus → $newStatus");
+                abort(422, "Invalid transition: $currentStatus → $newStatus");
             }
 
             $shipment->update([

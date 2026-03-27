@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ShipmentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use App\Services\ShipmentService;
@@ -37,7 +38,7 @@ class ShipmentController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|string'
+            'status' => 'required|in:' . implode(',', ShipmentStatus::all())
         ]);
 
         $shipment = $this->shipmentService->updateStatus($id, $request->status, auth()->id());
