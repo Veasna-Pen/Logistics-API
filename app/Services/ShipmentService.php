@@ -47,7 +47,7 @@ class ShipmentService
             $currentStatus = $shipment->status;
 
             if ($currentStatus === $newStatus) {
-                abort(422, "Shipment already in status: $currentStatus");
+                return $shipment;
             }
 
             if (!ShipmentStatus::conTransition($currentStatus, $newStatus)) {
