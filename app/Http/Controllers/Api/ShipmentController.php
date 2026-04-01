@@ -18,6 +18,13 @@ class ShipmentController extends Controller
         $this->shipmentService = $shipmentService;
     }
 
+    public function index()
+    {
+        return response()->json(
+            $this->shipmentService->list()
+        );
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -29,7 +36,7 @@ class ShipmentController extends Controller
 
         $shipment =  $this->shipmentService->create(
             $request->all(),
-            auth()->id()
+            auth()->user->id
         );
 
         return response()->json($shipment, 201);
@@ -41,25 +48,21 @@ class ShipmentController extends Controller
             'status' => 'required|in:' . implode(',', ShipmentStatus::all())
         ]);
 
-        $shipment = $this->shipmentService->updateStatus($id, $request->status, auth()->id());
+        $shipment = Shipment::findOrFail($id);
+        $this->authorize('update', $shipment);
+        $result = $this->shipmentService->updateStatus($id, $request->status, auth()->user->id);
 
-        return response()->json($shipment);
-    }
-
-    public function index()
-    {
-        return response()->json(
-            $this->shipmentService->list()
-        );
+        return response()->json($result);
     }
 
     public function show($id)
     {
-        return response()->json(
-            $this->shipmentService->find($id)
-        );;
-    }
 
+        $shipment = $this->shipmentService->find($id);
+        $this->authorize('view', $shipment);
+
+        return response()->json($shipment);
+    }
 
     public function assignDriver(Request $request, $id)
     {
@@ -67,7 +70,9 @@ class ShipmentController extends Controller
             'driver_id' => 'required|exists:users,id'
         ]);
 
-        $shipment = $this->shipmentService->assignDriver($id, $request->driver_id, auth()->user());
+        $this->authorize('assign', Shipment::class);
+
+        $shipment = $this->shipmentService->assignDriver($id, $request->driver_id, auth()->user->id);
 
         return response()->json($shipment);
     }
