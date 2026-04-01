@@ -88,7 +88,7 @@ class ShipmentService
 
             $shipment->logs()->create([
                 'status' => ShipmentStatus::ASSIGNED,
-                'updated_by' => $user->id
+                'updated_by' => $user
             ]);
 
             return $shipment->load(['driver']);

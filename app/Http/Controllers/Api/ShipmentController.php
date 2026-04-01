@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\ShipmentStatus;
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use App\Services\ShipmentService;
@@ -20,9 +21,7 @@ class ShipmentController extends Controller
 
     public function index()
     {
-        return response()->json(
-            $this->shipmentService->list()
-        );
+        return ApiResponse::success($this->shipmentService->list());
     }
 
     public function store(Request $request)
@@ -36,10 +35,10 @@ class ShipmentController extends Controller
 
         $shipment =  $this->shipmentService->create(
             $request->all(),
-            auth()->user->id
+            auth()->user()->id
         );
 
-        return response()->json($shipment, 201);
+        return ApiResponse::success($shipment, 'Shipment created successfully', 201);
     }
 
     public function updateStatus(Request $request, $id)
@@ -50,9 +49,9 @@ class ShipmentController extends Controller
 
         $shipment = Shipment::findOrFail($id);
         $this->authorize('update', $shipment);
-        $result = $this->shipmentService->updateStatus($id, $request->status, auth()->user->id);
+        $result = $this->shipmentService->updateStatus($id, $request->status, auth()->user()->id);
 
-        return response()->json($result);
+        return ApiResponse::success($result, 'Shipment status updated successfully');
     }
 
     public function show($id)
@@ -61,7 +60,7 @@ class ShipmentController extends Controller
         $shipment = $this->shipmentService->find($id);
         $this->authorize('view', $shipment);
 
-        return response()->json($shipment);
+        return ApiResponse::success($shipment);
     }
 
     public function assignDriver(Request $request, $id)
@@ -72,8 +71,8 @@ class ShipmentController extends Controller
 
         $this->authorize('assign', Shipment::class);
 
-        $shipment = $this->shipmentService->assignDriver($id, $request->driver_id, auth()->user->id);
+        $shipment = $this->shipmentService->assignDriver($id, $request->driver_id, auth()->user()->id);
 
-        return response()->json($shipment);
+        return ApiResponse::success($shipment, 'Driver assigned successfully');
     }
 }

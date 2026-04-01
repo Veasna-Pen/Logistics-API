@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Foundation\Configuration\Exceptions;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -20,6 +20,23 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
         App\Providers\AppServiceProvider::class,
     ])
+
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation Error',
+                'errors' => $e->errors(),
+            ], 422);
+        });
+
+        $exceptions->render(function (\Throwable $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Server Error',
+                ], 500);
+            }
+        });
     })->create();
