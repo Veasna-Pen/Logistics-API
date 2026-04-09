@@ -56,7 +56,6 @@ class ShipmentController extends Controller
 
     public function show($id)
     {
-
         $shipment = $this->shipmentService->find($id);
         $this->authorize('view', $shipment);
 
