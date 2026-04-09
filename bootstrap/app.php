@@ -1,9 +1,15 @@
 <?php
 
+use App\Helpers\ApiResponse;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Middleware\RoleMiddleware;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -23,20 +29,48 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withExceptions(function (Exceptions $exceptions): void {
 
-        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'errors' => $e->errors(),
-            ], 422);
+        $exceptions->render(function (ValidationException $e, $request) {
+            return ApiResponse::error(
+                'Validation Error',
+                422,
+                $e->errors()
+            );
+        });
+
+        $exceptions->render(function (ModelNotFoundException $e, $request) {
+            return ApiResponse::error(
+                'Resource not found',
+                404
+            );
+        });
+
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            return ApiResponse::error(
+                'Unauthenticated',
+                401
+            );
+        });
+
+        $exceptions->render(function (AuthorizationException $e, $request) {
+            return ApiResponse::error(
+                'Forbidden',
+                403
+            );
+        });
+
+        $exceptions->render(function (HttpExceptionInterface $e, $request) {
+            return ApiResponse::error(
+                $e->getMessage() ?: 'HTTP Error',
+                $e->getStatusCode()
+            );
         });
 
         $exceptions->render(function (\Throwable $e, $request) {
             if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage() ?: 'Server Error',
-                ], 500);
+                return ApiResponse::error(
+                    config('app.debug') ? $e->getMessage() : 'Server Error',
+                    500
+                );
             }
         });
     })->create();
