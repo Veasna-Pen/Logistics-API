@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ShipmentStatus;
+use App\Jobs\LogShipmentStatus;
 use App\Models\Shipment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -65,6 +66,13 @@ class ShipmentService
 
             return $shipment;
         });
+
+        LogShipmentStatus::dispatch(
+            $shipment->id,
+            $currentStatus,
+            $newStatus,
+            $userId
+        );
     }
 
     public function assignDriver(int $shipmentId, int $driverId, $user)
