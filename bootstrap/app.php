@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -72,5 +73,12 @@ return Application::configure(basePath: dirname(__DIR__))
                     500
                 );
             }
+        });
+
+        $exceptions->render(function (ThrottleRequestsException $e, $request) {
+            return ApiResponse::error(
+                'Too many requests. Please try again later.',
+                429
+            );
         });
     })->create();

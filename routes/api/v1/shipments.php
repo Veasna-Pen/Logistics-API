@@ -3,7 +3,7 @@
 use App\Http\Controllers\Api\ShipmentController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->prefix('shipments')->group(function () {
+Route::middleware('auth:sanctum', 'throttle:api')->prefix('shipments')->group(function () {
     Route::post('/', [ShipmentController::class, 'store']);
     Route::get('/', [ShipmentController::class, 'index']);
     Route::get('/{id}', [ShipmentController::class, 'show']);
